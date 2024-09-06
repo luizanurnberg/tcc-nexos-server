@@ -2,7 +2,7 @@
   <img src="nextReleaseProblem-main/logo.png" alt="NEXOS Logo" width="80" height="80">
 </p>
 
-# NEXOS (Next Rlease Optimization System) - Back
+# NEXOS (Next Release Optimization System) - Back
 
 Repositório referente ao back do trabalho de conclusão de curso.
 
