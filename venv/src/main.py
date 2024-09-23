@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
-from route.auth.auth_route import auth_route
+from route.auth.route import auth_route
+from route.next_release.route import release_route
 
 def create_app():
     app = Flask(__name__)
@@ -11,7 +12,8 @@ def create_app():
     )
     
     app.register_blueprint(auth_route)
-    
+    app.register_blueprint(release_route)
+
     return app
 
 

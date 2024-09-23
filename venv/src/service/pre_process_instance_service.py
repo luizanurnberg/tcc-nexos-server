@@ -23,7 +23,6 @@ def reset():
     b = 0
     S = []
 
-
 def read(path, factor):
     global n, m, c, w, v, P, Q, f, b, S
     reset()
@@ -70,7 +69,6 @@ def read(path, factor):
         S.append([])
         for req2, cus in Q:
             if req == req2: S[-1].append(cus)
-
 
 def transformation1():
     global n, m, c, w, v, P, Q, f, b, S
