@@ -1,4 +1,3 @@
-import pre_process_instance_service as instance
 import sys
 import random
 import math
@@ -9,16 +8,15 @@ constructionPerc = 0.11
 destructionPerc1 = 0.38
 destructionPerc2 = 0.5
 
-def generate_customer_requirements_dict(instance):
+def generate_customer_requirements_dict(Q, w):
     customer_requirements_dict = {}
-    for req, cus in instance.Q:
+    for req, cus in Q:
         if cus not in customer_requirements_dict:
             customer_requirements_dict[cus] = {
-                'weight': instance.w[cus], 'requirements': []}
+                'weight': w[cus], 'requirements': []}
         if req not in customer_requirements_dict[cus]['requirements']:
             customer_requirements_dict[cus]['requirements'].append(req)
     return customer_requirements_dict
-
 
 def select_customer(remaining_customers, customer_requirements_dict, percent_value, reverse=True):
     sorted_customers = sorted(
@@ -27,14 +25,13 @@ def select_customer(remaining_customers, customer_requirements_dict, percent_val
     sample = random.sample(sorted_customers[:amount], 1)
     return sample[0]
 
-
-def can_add(customer, total_cost, added_requirements):
+def can_add(customer, total_cost, added_requirements, customer_requirements_dict, c, b):
     additional_cost = 0
     for req in customer_requirements_dict[customer]['requirements']:
         if added_requirements[req] == 0:
-            additional_cost += instance.c[req]
+            additional_cost += c[req]
 
-    if total_cost + additional_cost <= instance.b:
+    if total_cost + additional_cost <= b:
         for req in customer_requirements_dict[customer]['requirements']:
             added_requirements[req] += 1
         total_cost += additional_cost
@@ -42,18 +39,16 @@ def can_add(customer, total_cost, added_requirements):
     else:
         return False, total_cost, added_requirements
 
-
-def can_remove(customer, total_cost, added_requirements):
+def can_remove(customer, total_cost, added_requirements, customer_requirements_dict, c):
     for req in customer_requirements_dict[customer]['requirements']:
         if added_requirements[req] == 1:
-            total_cost -= instance.c[req]
+            total_cost -= c[req]
     for req in customer_requirements_dict[customer]['requirements']:
         added_requirements[req] -= 1
     return True, total_cost, added_requirements
 
-
-def heuristic_construction(customer_requirements_dict, solution, k, instance, added_requirements, total_cost, selected_customers, obj_value):
-    remaining_customers = list(range(instance.m))
+def heuristic_construction(customer_requirements_dict, solution, k, added_requirements, total_cost, selected_customers, obj_value, m, c, b):
+    remaining_customers = list(range(m))
     while remaining_customers:
         customer = select_customer(
             remaining_customers, customer_requirements_dict, k)
@@ -61,17 +56,16 @@ def heuristic_construction(customer_requirements_dict, solution, k, instance, ad
 
         if customer not in selected_customers:
             can_add_result, total_cost, added_requirements = can_add(
-                customer, total_cost, added_requirements)
+                customer, total_cost, added_requirements, customer_requirements_dict, c, b)
 
             if can_add_result:
                 solution[customer] = 1
-                obj_value += instance.w[customer]
+                obj_value += customer_requirements_dict[customer]['weight']
                 selected_customers.append(customer)
 
     return solution, total_cost, selected_customers, added_requirements, obj_value
 
-
-def heuristic_destruction(customer_requirements_dict, solution, j, instance, d, selected_customers,  total_cost, obj_value, added_requirements):
+def heuristic_destruction(customer_requirements_dict, solution, j, d, selected_customers, total_cost, obj_value, added_requirements, c):
     num_customers_remove = min(
         math.ceil(len(selected_customers) * d), len(selected_customers))
 
@@ -80,32 +74,32 @@ def heuristic_destruction(customer_requirements_dict, solution, j, instance, d, 
             selected_customers, customer_requirements_dict, j, True)
         selected_customers.remove(customer)
         can_remove_result, total_cost, added_requirements = can_remove(
-            customer, total_cost, added_requirements)
+            customer, total_cost, added_requirements, customer_requirements_dict, c)
 
         if can_remove_result:
             solution[customer] = 0
-            obj_value -= instance.w[customer]
+            obj_value -= customer_requirements_dict[customer]['weight']
 
     return solution, total_cost, selected_customers, added_requirements, obj_value
 
-
-def run_heuristic(instance, k, j, d, num_iterations=100):
+def run_heuristic(Q, w, c, b, n, m, k, j, d, num_iterations=100):
     start_time = time.time()
 
-    best_solution = 0
+    customer_requirements_dict = generate_customer_requirements_dict(Q, w)
+
+    best_solution = [0] * m
     best_total_cost = 0
-    best_selected_customers = 0
+    best_selected_customers = []
     best_obj_value = 0
 
-    current_solution = [0] * instance.m
-    current_total_cost, selected_customers, added_requirements, obj_value = 0, [], [
-        0] * instance.n, 0
+    current_solution = [0] * m
+    current_total_cost, selected_customers, added_requirements, obj_value = 0, [], [0] * n, 0
 
     for iteration in range(num_iterations):
         current_solution, current_total_cost, selected_customers, added_requirements, obj_value = heuristic_destruction(
-            customer_requirements_dict, current_solution, j, instance, d, selected_customers, current_total_cost, obj_value, added_requirements)
+            customer_requirements_dict, current_solution, j, d, selected_customers, current_total_cost, obj_value, added_requirements, c)
         current_solution, current_total_cost, selected_customers, added_requirements, obj_value = heuristic_construction(
-            customer_requirements_dict, current_solution, k, instance, added_requirements, current_total_cost, selected_customers, obj_value)
+            customer_requirements_dict, current_solution, k, added_requirements, current_total_cost, selected_customers, obj_value, m, c, b)
 
         if best_obj_value < obj_value:
             best_solution = current_solution.copy()
@@ -116,21 +110,3 @@ def run_heuristic(instance, k, j, d, num_iterations=100):
 
     elapsed_time = time.time() - start_time
     return best_solution, best_total_cost, best_selected_customers, best_iteration, best_obj_value, elapsed_time
-
-
-path = sys.argv[1]
-instance.read(path, budgetFactor)
-instance.transformation1()
-
-customer_requirements_dict = generate_customer_requirements_dict(instance)
-
-solution, total_cost, selected_customers, best_iteration, best_obj_value, elapsed_time = run_heuristic(
-    instance, constructionPerc, destructionPerc1, destructionPerc2)
-
-print('Solution', solution)
-print('Budget', instance.b)
-print('Total cost', total_cost)
-print('Selected Custumers', selected_customers)
-print('Best Iteration', best_iteration)
-print(f'FO: {best_obj_value}')
-print(f'Execution Time: {elapsed_time} seconds')

@@ -1,88 +1,61 @@
-# Data
-n = 0       # number of requirements
-m = 0       # number of customers
-c = []      # costs of requirements
-w = []      # weights/profits of customers
-v = []      # weights of requirements given by customers (can be a n x m matrix or a n vector)
-P = []      # set of pairs (i,j) where requirement i is a prerequisite of requirement j
-Q = []      # set of pairs (i,k) where requirement i is requested by customer k
-f = 0       # multiplication factor to compute b
-b = 0       # budget
-S = []      # set of customers associated with each requirement
-
+# Data structure refactored to receive from the route
 def reset():
-    global n, m, c, w, v, P, Q, f, b, S
-    n = 0
-    m = 0
-    c = []
-    w = []
-    v = []
-    P = []
-    Q = []
-    f = 0
-    b = 0
-    S = []
+    return {
+        'n': 0,       # number of requirements
+        'm': 0,       # number of customers
+        'c': [],      # costs of requirements
+        'w': [],      # weights/profits of customers
+        'v': [],      # weights of requirements given by customers (can be a n x m matrix or a n vector)
+        'P': [],      # set of pairs (i,j) where requirement i is a prerequisite of requirement j
+        'Q': [],      # set of pairs (i,k) where requirement i is requested by customer k
+        'f': 0,       # multiplication factor to compute b
+        'b': 0,       # budget
+        'S': []       # set of customers associated with each requirement
+    }
 
-def read(path, factor):
-    global n, m, c, w, v, P, Q, f, b, S
-    reset()
-    f = factor
-    file = open(path, 'r')
-    lines = [line.strip() for line in file.readlines()]
-    
-    levels = int(lines[0])
-    line_count = 1
-    for _ in range(levels):
-        nb_requirements = int(lines[line_count])
-        n += nb_requirements
-        line_count += 1
-        for cost in lines[line_count].split():
-            c.append(int(cost))
-            v.append(0)
-        line_count += 1
-    
-    dependencies = int(lines[line_count])
-    line_count += 1
-    for _ in range(dependencies):
-        values = lines[line_count].split()
-        P.append((int(values[0]) - 1, int(values[1]) - 1))
-        line_count += 1
-    
-    nb_customers = int(lines[line_count])
-    m = nb_customers
-    line_count += 1
-    for customer in range(nb_customers):
-        values = [int(value) for value in lines[line_count].split()]
-        w.append(values[0])
-        for value in values[2:]:
-            Q.append((value - 1, customer))
-        line_count += 1
-    
-    b = sum(c) * f
-    if b - int(b) == 0.5: b += 0.01
-    b = round(b)
+def initialize_data(data):
+    instance = reset()
 
-    for req, cus in Q:
-        v[req] += w[cus]
+    # Requirements and budget
+    instance['n'] = data.get('numberOfReq')
+    instance['m'] = data.get('numberOfClients')
+    instance['c'] = data.get('requirements')
+    instance['w'] = data.get('customerWeights')
+    instance['Q'] = data.get('customerRequests')  # Pairs (i, k) from route
+    instance['P'] = data.get('dependencyMatrix')  # Pairs (i, j) from route
+    instance['f'] = data.get('budgetFactor', 0.7)  # Default budget factor
+    instance['b'] = sum(instance['c']) * instance['f']
 
-    for req in range(n):
-        S.append([])
-        for req2, cus in Q:
-            if req == req2: S[-1].append(cus)
+    # Adjust the budget rounding
+    if instance['b'] - int(instance['b']) == 0.5:
+        instance['b'] += 0.01
+    instance['b'] = round(instance['b'])
 
-def transformation1():
-    global n, m, c, w, v, P, Q, f, b, S
+    # Initialize requirement weights
+    instance['v'] = [0] * instance['n']
+
+    # Calculate total weights of requirements requested by customers
+    for req, cus in instance['Q']:
+        instance['v'][req] += instance['w'][cus]
+
+    # Initialize customer list per requirement
+    instance['S'] = [[] for _ in range(instance['n'])]
+    for req, cus in instance['Q']:
+        instance['S'][req].append(cus)
+
+    return instance
+
+def transformation1(instance):
     novel = True
     while novel:
         novel = False
-        for req, cus in Q:
-            for reqi, reqj in P:
+        for req, cus in instance['Q']:
+            for reqi, reqj in instance['P']:
                 if req == reqj:
-                    if (reqi, cus) not in Q:
-                        Q.append((reqi, cus))
+                    if (reqi, cus) not in instance['Q']:
+                        instance['Q'].append((reqi, cus))
                         novel = True
-    S = []
-    for req in range(n):
-        S.append([])
-        for req2, cus in Q:
-            if req == req2: S[-1].append(cus)
+    # Rebuild customer list for each requirement
+    instance['S'] = [[] for _ in range(instance['n'])]
+    for req, cus in instance['Q']:
+        instance['S'][req].append(cus)
