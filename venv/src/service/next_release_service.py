@@ -3,12 +3,6 @@ import random
 import math
 import time
 
-# Fatores que controlam o orçamento e percentuais para construção/destruição
-budgetFactor = 0.7
-constructionPerc = 0.11
-destructionPerc1 = 0.38
-destructionPerc2 = 0.5
-
 # Gera um dicionário associando clientes aos requisitos que eles solicitam e seus pesos
 def generate_customer_requirements_dict(Q, w):
     customer_requirements_dict = {}
@@ -114,5 +108,6 @@ def run_heuristic(Q, w, c, b, n, m, k, j, d, project_select_time):
             best_total_cost = current_total_cost
             best_selected_customers = selected_customers.copy()
             best_obj_value = obj_value
+            print(obj_value)
 
     return best_solution, best_total_cost, best_selected_customers, best_obj_value

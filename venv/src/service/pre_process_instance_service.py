@@ -7,7 +7,6 @@ def reset():
         "v": [],  # importâncias dos requisitos fornecidas pelos clientes (pode ser uma matriz n x m ou um vetor n)
         "P": [],  # conjunto de pares (i,j) onde o requisito i é um pré-requisito do requisito j
         "Q": [],  # conjunto de pares (i,k) onde o requisito i é solicitado pelo cliente k
-        "f": 0.7,  # fator de multiplicação para calcular o orçamento disponível (b)
         "b": 0,  # orçamento total (valor calculado)
         "S": [],  # conjunto de clientes associados a cada requisito (índice 0 até n-1)
     }
@@ -43,8 +42,8 @@ def initialize_data(data):
         req_id = int(req["id"]) 
         instance["Q"].append((req_id, client_id)) 
 
-    # Cálculo do orçamento total com base nos custos e fator f
-    instance["b"] = sum(instance["c"]) * instance["f"]
+    # Cálculo do orçamento total
+    instance["b"] = data.get("projectBudget")
 
     # Monta os pares de dependência (P) a partir da matriz de dependências fornecida
     dependencies = data.get("dependencyMatrix", [])
@@ -53,11 +52,6 @@ def initialize_data(data):
         i = int(values[0])
         j = int(values[1])
         instance["P"].append((i, j))
-
-    # Ajusta o arredondamento do orçamento, caso o valor decimal seja .5
-    if instance["b"] - int(instance["b"]) == 0.5:
-        instance["b"] += 0.01
-    instance["b"] = round(instance["b"])
 
     # Inicializa a lista de clientes associados a cada requisito (com listas vazias)
     instance["S"] = [[] for _ in range(instance["n"])] 

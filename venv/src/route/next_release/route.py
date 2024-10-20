@@ -10,6 +10,7 @@ def inser_next_release():
     data = request.get_json()
     instance = initialize_data(data)
     transformation1(instance)
+    
     project_select_time = data.get('projectSelectTime')
     
     solution, total_cost, selected_customers, best_obj_value = run_heuristic(
