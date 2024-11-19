@@ -105,9 +105,7 @@ def run_heuristic(Q, w, c, b, n, m, k, j, d, project_select_time):
 
         if best_obj_value < obj_value:
             best_solution = current_solution.copy()
-            best_total_cost = current_total_cost
             best_selected_customers = selected_customers.copy()
             best_obj_value = obj_value
-            print(obj_value)
 
-    return best_solution, best_total_cost, best_selected_customers, best_obj_value
+    return best_solution, best_selected_customers

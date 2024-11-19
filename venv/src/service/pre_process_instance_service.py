@@ -11,9 +11,9 @@ def reset():
         "S": [],  # conjunto de clientes associados a cada requisito (índice 0 até n-1)
     }
 
+
 def initialize_data(data):
     instance = reset()
-    print("data:", data)
 
     # Obtém o número de requisitos e clientes da entrada
     number_of_req = data.get("numberOfReq")
@@ -38,9 +38,9 @@ def initialize_data(data):
 
     # Para cada requisito na entrada, adiciona o par (requisito, cliente) ao conjunto Q
     for req in data.get("requirements", []):
-        client_id = int(req["clientId"]) 
-        req_id = int(req["id"]) 
-        instance["Q"].append((req_id, client_id)) 
+        client_id = int(req["clientId"])
+        req_id = int(req["id"])
+        instance["Q"].append((req_id, client_id))
 
     # Cálculo do orçamento total
     instance["b"] = data.get("projectBudget")
@@ -54,12 +54,13 @@ def initialize_data(data):
         instance["P"].append((i, j))
 
     # Inicializa a lista de clientes associados a cada requisito (com listas vazias)
-    instance["S"] = [[] for _ in range(instance["n"])] 
+    instance["S"] = [[] for _ in range(instance["n"])]
     for req, cus in instance["Q"]:
         instance["S"][req].append(cus)
 
-    print("instance:", instance)
+    print("instance", instance)
     return instance
+
 
 # Função de transformação para propagar dependências e atualizar Q e S
 def transformation1(instance):
@@ -74,6 +75,6 @@ def transformation1(instance):
                         novel = True
 
     # Atualiza o conjunto S, associando os clientes aos requisitos após a transformação
-    instance["S"] = [[] for _ in range(instance["n"])] 
+    instance["S"] = [[] for _ in range(instance["n"])]
     for req, cus in instance["Q"]:
         instance["S"][req].append(cus)

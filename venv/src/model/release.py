@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 class ReleaseModel:
     def __init__(
         self,
@@ -9,9 +12,8 @@ class ReleaseModel:
         created_at,
         created_by_id,
         requirement,
-        requirement_to_implement,
         client,
-        client_chosen,
+        status,
     ):
         self.ID = id
         self.TITLE = title
@@ -21,13 +23,13 @@ class ReleaseModel:
         self.CREATED_AT = created_at
         self.CREATED_BY_ID = created_by_id
         self.REQUIREMENT = requirement
-        self.REQUIREMENT_TO_IMPLEMENT = requirement_to_implement
+        self.REQUIREMENT_TO_IMPLEMENT = None
         self.CLIENT = client
-        self.CLIENT_CHOSEN = client_chosen
+        self.CLIENT_CHOSEN = None
+        self.STATUS = status
 
     @classmethod
-    def from_dict(cls, data):
-        print("DATA",data)
+    def from_dict(cls, data, instance):
         requirements = [
             {
                 "ID": req.get("id"),
@@ -36,6 +38,7 @@ class ReleaseModel:
                 "DESCRIPTION": req.get("description"),
                 "CLIENT": req.get("client"),
                 "WEIGHT": req.get("requirementImportance"),
+                "DEPENDENTS": cls.filter_dependents(req, instance),
             }
             for req in data.get("requirements", [])
         ]
@@ -50,18 +53,26 @@ class ReleaseModel:
         ]
 
         return cls(
-            id=data.get("ID"),
+            id=data.get("projectId"),
             title=data.get("projectName"),
             total_budget=data.get("projectBudget"),
             description=data.get("projectDescription"),
             hours_to_generate=data.get("projectSelectTime"),
-            created_at=data.get("CREATED_AT"),
+            created_at=datetime.utcnow(),
             created_by_id=data.get("CREATED_BY_ID"),
             requirement=requirements,
-            requirement_to_implement=data.get("REQUIREMENT_TO_IMPLEMENT", []),
             client=clients,
-            client_chosen=data.get("CLIENT_CHOSEN", []),
+            status=data.get("status"),
         )
+
+    @staticmethod
+    def filter_dependents(requirement, instance):
+        # Filtra os requisitos dependentes com base no 'P' definido na instância do algoritmo.
+        req_id = requirement.get("id")
+        dependents = [
+            {"ID": pair[1]} for pair in instance.get("P", []) if pair[0] == req_id
+        ]
+        return dependents
 
     def to_dict(self):
         return self.__dict__
