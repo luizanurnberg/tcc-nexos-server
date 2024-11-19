@@ -1,12 +1,14 @@
 import os
 from flask import Flask
 from flask_cors import CORS
-from flask_pymongo import PyMongo
+from pymongo import MongoClient
 from dotenv import load_dotenv
 from route.auth.route import auth_route
 from route.next_release.route import release_route
 
 load_dotenv()
+MONGO_URI = os.getenv("MONGO_URI")
+DATABASE_NAME = os.getenv("DATABASE_NAME") 
 
 def create_app():
     app = Flask(__name__)
@@ -16,20 +18,20 @@ def create_app():
         allow_headers="*",
     )
 
-    mongo_uri = os.getenv("MONGO_URI")
-    app.config["MONGO_URI"] = mongo_uri
-
-    mongo = PyMongo(app)
-
     app.register_blueprint(auth_route)
     app.register_blueprint(release_route)
 
-    return app, mongo
+    try:
+        client = MongoClient(MONGO_URI)
+        app.db = client[DATABASE_NAME]
+        print(f"Conectado ao banco de dados: {DATABASE_NAME}")
+    except Exception as e:
+        print("Erro ao conectar ao MongoDB:", e)
+        app.db = None
 
-app, mongo = create_app()
+    return app
 
-def run_http_server():
-    app.run(host="0.0.0.0", port=3000)
 
 if __name__ == "__main__":
-    run_http_server()
+    app = create_app()
+    app.run(host="0.0.0.0", port=3000)
