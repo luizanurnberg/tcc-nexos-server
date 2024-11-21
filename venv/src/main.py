@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from route.auth.route import auth_route
 from route.next_release.route import release_route
+from route.kanban.route import kanban_route
 
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI")
@@ -20,6 +21,7 @@ def create_app():
 
     app.register_blueprint(auth_route)
     app.register_blueprint(release_route)
+    app.register_blueprint(kanban_route)
 
     try:
         client = MongoClient(MONGO_URI)
