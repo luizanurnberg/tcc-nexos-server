@@ -38,4 +38,13 @@ class ReleaseService:
             client for client in all_clients if client["ID"] in selected_customers
         ]
         return selected_clients
+    
+    def list_all_releases(self):
+        self.release_repository = MongoRepository("Release")
+        return self.release_repository.find_many()
+    
+    def delete_release(self, release_id):
+        query = {"ID": release_id}
+        return self.release_repository.delete_one(query)
+
 

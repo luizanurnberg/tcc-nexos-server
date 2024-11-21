@@ -1,3 +1,4 @@
+from bson.json_util import dumps
 from flask import Blueprint, jsonify, request
 from service.next_release_service import run_heuristic
 from service.pre_process_instance_service import initialize_data, transformation1
@@ -7,7 +8,7 @@ release_route = Blueprint("release_route", __name__)
 
 
 @release_route.route("/release/insert", methods=["POST"])
-def inser_next_release():
+def insert_next_release():
     try:
         data = request.get_json()
 
@@ -69,3 +70,29 @@ def inser_next_release():
             ),
             500,
         )
+
+
+@release_route.route("/release/list", methods=["GET"])
+def list_releases():
+    try:
+        release_service = ReleaseService()
+        releases = release_service.list_all_releases()
+
+        return dumps({"message": "success", "data": releases}), 200
+    except Exception as e:
+        return jsonify({"message": "error", "error": str(e)}), 500
+    
+
+@release_route.route("/release/delete/<release_id>", methods=["DELETE"])
+def delete_release(release_id):
+    try:
+        release_service = ReleaseService()
+        deleted_count = release_service.delete_release(release_id)
+
+        if deleted_count:
+            return jsonify({"message": "success", "deleted_count": deleted_count}), 200
+        else:
+            return jsonify({"message": "not_found", "error": "Release not found"}), 404
+    except Exception as e:
+        return jsonify({"message": "error", "error": str(e)}), 500
+    
