@@ -1,6 +1,5 @@
 from flask import current_app
 
-
 class MongoRepository:
     def __init__(self, collection_name):
         self.collection = current_app.db[collection_name]

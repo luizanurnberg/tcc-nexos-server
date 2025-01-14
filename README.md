@@ -15,7 +15,7 @@ Repositório referente ao back do trabalho de conclusão de curso.
 [![Mongo](https://skillicons.dev/icons?i=mongo)](https://www.mongodb.com)
 [![Firebase](https://skillicons.dev/icons?i=firebase)](https://www.firebase.com)
 
-- acessar tcc-nexos-server/venv/src e executar python3 main.py
+- acessar tcc-nexos-server/venv/src e executar python3 -B main.py
 - executar sempre o pip freeze > requirements.txt depois de instalar dependencias
 
 - source venv/bin/activate para ativar a venv
