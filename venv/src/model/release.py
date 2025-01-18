@@ -59,7 +59,7 @@ class ReleaseModel:
             description=data.get("projectDescription"),
             hours_to_generate=data.get("projectSelectTime"),
             created_at=datetime.utcnow(),
-            created_by_id=data.get("CREATED_BY_ID"),
+            created_by_id=data.get("user"),
             requirement=requirements,
             client=clients,
             status=data.get("status"),

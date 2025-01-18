@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, request
 from service.next_release_service import run_heuristic
 from service.pre_process_instance_service import initialize_data, transformation1
 from service.release_service import ReleaseService
+from service.firebase_service import get_request_auth_token
 
 release_route = Blueprint("release_route", __name__)
 
@@ -10,6 +11,8 @@ release_route = Blueprint("release_route", __name__)
 @release_route.route("/release/insert", methods=["POST"])
 def insert_next_release():
     try:
+        get_request_auth_token(request)
+        
         data = request.get_json()
 
         # Inicializa os dados e executa a transformação
@@ -75,8 +78,14 @@ def insert_next_release():
 @release_route.route("/release/list", methods=["GET"])
 def list_releases():
     try:
+        get_request_auth_token(request)
+        
+        uid = request.args.get('uid')
+        if not uid:
+            return jsonify({"message": "UID não fornecido"}), 400
+        
         release_service = ReleaseService()
-        releases = release_service.list_all_releases()
+        releases = release_service.list_all_releases(uid)
 
         return dumps({"message": "success", "data": releases}), 200
     except Exception as e:
@@ -86,6 +95,7 @@ def list_releases():
 @release_route.route("/release/delete/<release_id>", methods=["DELETE"])
 def delete_release(release_id):
     try:
+        get_request_auth_token(request)
         release_service = ReleaseService()
         deleted_count = release_service.delete_release(release_id)
 

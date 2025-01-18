@@ -5,17 +5,6 @@ from firebase_admin import auth
 
 auth_route = Blueprint('auth_route', __name__)
 
-@auth_route.route("/secure-endpoint", methods=["POST"])
-def secure_endpoint():
-    try:
-        uid = get_request_auth_token(request)
-        user = auth.get_user(uid)
-        user_data = {"uid": user.uid, "email": user.email, "name": user.display_name}
-        return jsonify({"status": "success", "user": user_data}), 200
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 401
-
-
 @auth_route.route("/login", methods=["POST"])
 def login():
     data = request.json
@@ -26,9 +15,8 @@ def login():
         return jsonify({"error": "Email and password are required"}), 400
 
     try:
-        id_token = authenticate_user(email, password)
-        
-        return jsonify({"token": id_token}), 200
+        user = authenticate_user(email, password)
+        return jsonify({"user": user}), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 401
 
@@ -44,8 +32,8 @@ def register():
         return jsonify({"error": "Name, email, and password are required"}), 400
 
     try:
-        id_token = register_user(name, email, password)
-        return jsonify({"token": id_token}), 200
+        user = register_user(name, email, password)
+        return jsonify({"user": user}), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 500
 

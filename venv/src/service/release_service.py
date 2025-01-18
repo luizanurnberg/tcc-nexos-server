@@ -48,10 +48,10 @@ class ReleaseService:
         except Exception as e:
             raise RuntimeError(f"Error filtering clients chosen: {e}")
 
-    def list_all_releases(self):
+    def list_all_releases(self, uid):
         try:
             self.release_repository = MongoRepository("Release")
-            return self.release_repository.find_many()
+            return self.release_repository.find_many({"CREATED_BY_ID": uid})
         except Exception as e:
             raise RuntimeError(f"Error listing all releases: {e}")
 

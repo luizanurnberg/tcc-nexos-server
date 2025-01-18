@@ -28,7 +28,10 @@ def authenticate_user(email, password):
         if "error" in response_data:
             raise ValueError(response_data["error"]["message"])
 
-        return response_data.get("idToken")
+        id_token = response_data.get("idToken")
+        user = auth.get_user_by_email(email)
+
+        return {"idToken": id_token, "uid": user.uid}
     except Exception as e:
         raise ValueError(f"Error authenticating the user: {e}")
 
@@ -50,7 +53,8 @@ def register_user(name, email, password):
         user = auth.get_user_by_email(email)
         auth.update_user(user.uid, display_name=name)
 
-        return id_token
+        # Retorna o token e o UID
+        return {"idToken": id_token, "uid": user.uid}
     except Exception as e:
         raise ValueError(f"Error registering the user: {e}")
 
