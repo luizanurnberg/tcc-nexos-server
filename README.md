@@ -21,4 +21,5 @@ Repositório referente ao back do trabalho de conclusão de curso.
 - executar sempre o pip freeze > requirements.txt depois de instalar dependencias
 - acessar tcc-nexos-server/venv/src e executar python3 -B main.py
 - deactivate para desativar a venv 
+- para rodar os testes, executar o comando na raiz do projeto PYTHONPATH=venv/src pytest -s tests/
 
