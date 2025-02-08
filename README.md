@@ -23,4 +23,5 @@ Repositório referente ao back do trabalho de conclusão de curso.
 - deactivate para desativar a venv 
 - para rodar os testes, executar o comando na raiz do projeto PYTHONPATH=venv/src pytest -s tests/
 - para verificar o codecoverage PYTHONPATH=venv/src pytest --cov=route.kanban.route
+- para remover o pycache find . -type d -name "__pycache__" -exec rm -rf {} +
 

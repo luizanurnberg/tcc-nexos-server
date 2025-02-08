@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch
 
 def test_list_requirements_valid_id(client):

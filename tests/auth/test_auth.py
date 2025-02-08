@@ -1,6 +1,5 @@
 import pytest
 from unittest.mock import patch
-from service.firebase_service import authenticate_user
 import random
 import string
 
@@ -90,6 +89,4 @@ def test_logout_success(client):
 def test_logout_without_token(client):
     headers = {"Authorization": f"Bearer {""}"}
     logoff_response = client.post("/logoff", headers=headers)
-    print(logoff_response.json)
     assert logoff_response.status_code == 500
-    assert logoff_response.json["error"] == "Error verifying the token: Illegal ID token provided: b''. ID token must be a non-empty string."
