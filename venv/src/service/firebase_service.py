@@ -11,7 +11,7 @@ def get_request_auth_token(request):
 
         token = auth_header.split(" ")[1]
         decoded_token = auth.verify_id_token(token)
-        return decoded_token['uid']
+        return decoded_token["uid"]
     except Exception as e:
         raise ValueError(f"Error verifying the token: {e}")
 

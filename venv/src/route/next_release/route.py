@@ -7,7 +7,6 @@ from service.firebase_service import get_request_auth_token
 
 release_route = Blueprint("release_route", __name__)
 
-
 @release_route.route("/release/insert", methods=["POST"])
 def insert_next_release():
     try:

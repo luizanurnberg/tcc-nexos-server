@@ -1,6 +1,5 @@
 from datetime import datetime
 
-
 class ReleaseModel:
     def __init__(
         self,
