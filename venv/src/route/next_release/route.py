@@ -23,6 +23,7 @@ def insert_next_release():
         release_service = ReleaseService()
         release = release_service.create_release(data, instance)
 
+        print("aqui")
         # Executa o algoritmo
         solution, selected_customers = run_heuristic(
             instance["Q"],
@@ -44,6 +45,8 @@ def insert_next_release():
         release["REQUIREMENT_TO_IMPLEMENT"] = (
             release_service.filter_requirements_to_implement(release, solution)
         )
+        
+        print("aqui2")
         release["STATUS"] = {"ID": 2, "NAME": "Concluído"}
         release_service.update_release(release)
 

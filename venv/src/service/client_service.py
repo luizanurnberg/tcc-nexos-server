@@ -2,6 +2,7 @@ from model.client import ClientModel
 from persistence.mongo_repository import MongoRepository
 from flask import current_app
 
+
 class ClientService:
     def __init__(self):
         try:
@@ -25,13 +26,14 @@ class ClientService:
         except Exception as e:
             raise RuntimeError(f"Error updating client: {e}")
 
-    def filter_clients_by_name(self, release, selected_customers):
+    def filter_clients_by_name(self, name, id):
         try:
-            all_clients = release.get("CLIENT", [])
-            selected_clients = [
-                client for client in all_clients if client["ID"] in selected_customers
-            ]
-            return selected_clients
+            self.client_repository = MongoRepository("Client")
+            query = {
+                "NAME": {"$regex": f"^{name}$", "$options": "i"},  # Case-insensitive regex
+                "CREATED_BY_ID": id
+            }
+            return self.client_repository.find_many(query)
         except Exception as e:
             raise RuntimeError(f"Error filtering clients chosen: {e}")
 

@@ -5,6 +5,7 @@ from bson.json_util import dumps
 
 client_route = Blueprint("client_route", __name__)
 
+
 @client_route.route("/client/insert", methods=["POST"])
 def insert_client():
     try:
@@ -45,6 +46,20 @@ def list_client(user_id):
     except Exception as e:
         return jsonify({"message": "error", "error": str(e)}), 500
 
+@client_route.route("/client/filter/<client_name>/<user_id>", methods=["GET"])
+def list_client_by_name(client_name, user_id):
+    try:
+        client_service = ClientService()
+        clients = client_service.filter_clients_by_name(client_name, user_id)
+        clients_without_id = []
+        if clients:
+            for client in clients:
+                client_dict = client.copy() 
+                client_dict.pop('_id', None)
+                clients_without_id.append(client_dict)
+        return jsonify({"message": "success", "data": clients_without_id}), 200
+    except Exception as e:
+        return jsonify({"message": "error", "error": str(e)}), 500
 
 @client_route.route("/client/update", methods=["POST"])
 def update_client():

@@ -6,12 +6,16 @@ import time
 # Gera um dicionário associando clientes aos requisitos que eles solicitam e seus pesos
 def generate_customer_requirements_dict(Q, w):
     customer_requirements_dict = {}
+    
     for req, cus in Q:
         if cus not in customer_requirements_dict:
             customer_requirements_dict[cus] = {
-                'weight': w[cus], 'requirements': []}
+                'weight': w.get(cus, 0),  # Obtém o peso com base no ID do cliente
+                'requirements': []
+            }
         if req not in customer_requirements_dict[cus]['requirements']:
             customer_requirements_dict[cus]['requirements'].append(req)
+    
     return customer_requirements_dict
 
 # Seleciona um cliente baseado no peso, com um percentual de corte para amostra
@@ -90,7 +94,6 @@ def run_heuristic(Q, w, c, b, n, m, k, j, d, project_select_time):
     customer_requirements_dict = generate_customer_requirements_dict(Q, w)
 
     best_solution = [0] * m
-    best_total_cost = 0
     best_selected_customers = []
     best_obj_value = 0
 
