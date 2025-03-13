@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class ReleaseModel:
     def __init__(
         self,
@@ -46,6 +47,7 @@ class ReleaseModel:
             {
                 "ID": client.get("clientId"),
                 "NAME": client.get("client"),
+                "CODE": client.get("clientCode"),
                 "WEIGHT": client.get("clientImportance"),
             }
             for client in data.get("requirements", [])

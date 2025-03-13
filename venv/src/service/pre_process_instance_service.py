@@ -3,7 +3,7 @@ def reset():
         "n": 0,  # número de requisitos
         "m": 0,  # número de clientes
         "c": [],  # custos de implementação dos requisitos
-        "w": [],  # pesos/importâncias dos clientes (indicando a relevância de cada cliente) junto com o seu id
+        "w": [],  # pesos/importâncias dos clientes (indicando a relevância de cada cliente)
         "v": [],  # importâncias dos requisitos fornecidas pelos clientes (pode ser uma matriz n x m ou um vetor n)
         "P": [],  # conjunto de pares (i,j) onde o requisito i é um pré-requisito do requisito j
         "Q": [],  # conjunto de pares (i,k) onde o requisito i é solicitado pelo cliente k
@@ -27,10 +27,9 @@ def initialize_data(data):
     instance["c"] = [int(req["budget"]) for req in data.get("requirements", [])]
 
     # Define a importância/peso dos clientes (extraídos do campo "clientImportance")
-    instance["w"] = {
-        int(req["clientId"]): int(req["clientImportance"])
-        for req in data.get("requirements", [])
-    }
+    instance["w"] = [
+        int(req["clientImportance"]) for req in data.get("requirements", [])
+    ]
 
     # Define a importância dos requisitos segundo os clientes (extraídos de "requirementImportance")
     instance["v"] = [

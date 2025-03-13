@@ -13,7 +13,7 @@ def insert_next_release():
         get_request_auth_token(request)
         
         data = request.get_json()
-
+        print(data)
         # Inicializa os dados e executa a transformação
         instance = initialize_data(data)
         transformation1(instance)
@@ -23,7 +23,6 @@ def insert_next_release():
         release_service = ReleaseService()
         release = release_service.create_release(data, instance)
 
-        print("aqui")
         # Executa o algoritmo
         solution, selected_customers = run_heuristic(
             instance["Q"],
@@ -46,7 +45,6 @@ def insert_next_release():
             release_service.filter_requirements_to_implement(release, solution)
         )
         
-        print("aqui2")
         release["STATUS"] = {"ID": 2, "NAME": "Concluído"}
         release_service.update_release(release)
 

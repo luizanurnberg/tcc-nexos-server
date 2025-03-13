@@ -41,10 +41,21 @@ class ReleaseService:
     def filter_clients_chosen(self, release, selected_customers):
         try:
             all_clients = release.get("CLIENT", [])
+            
             selected_clients = [
                 client for client in all_clients if client["ID"] in selected_customers
             ]
-            return selected_clients
+            
+            unique_clients = []
+            seen_codes = set()
+            
+            for client in selected_clients:
+                code = client.get("CODE")
+                if code not in seen_codes:
+                    unique_clients.append(client)
+                    seen_codes.add(code)
+            
+            return unique_clients
         except Exception as e:
             raise RuntimeError(f"Error filtering clients chosen: {e}")
 
