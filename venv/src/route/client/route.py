@@ -39,6 +39,7 @@ def insert_client():
 @client_route.route("/client/list/<user_id>", methods=["GET"])
 def list_client(user_id):
     try:
+        get_request_auth_token(request)
         client_service = ClientService()
         clients = client_service.list_all_clients(user_id)
 
@@ -49,6 +50,7 @@ def list_client(user_id):
 @client_route.route("/client/filter/<client_name>/<user_id>", methods=["GET"])
 def list_client_by_name(client_name, user_id):
     try:
+        get_request_auth_token(request)
         client_service = ClientService()
         clients = client_service.filter_clients_by_name(client_name, user_id)
         clients_without_id = []
@@ -64,6 +66,7 @@ def list_client_by_name(client_name, user_id):
 @client_route.route("/client/update", methods=["POST"])
 def update_client():
     try:
+        get_request_auth_token(request)
         data = request.get_json()
         client_service = ClientService()
         clients = client_service.update_client(data)
