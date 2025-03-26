@@ -72,3 +72,32 @@ class ReleaseService:
             return self.release_repository.delete_one(query)
         except Exception as e:
             raise RuntimeError(f"Error deleting release: {e}")
+
+    def get_release_metrics(self, user_id):
+        aggregated_data = self.repository.aggregate_release_metrics(user_id)
+        
+        metrics = []
+        for month_data in aggregated_data:
+            client_cards = {}
+            for client_info in month_data['clients']:
+                for client in client_info['client']:
+                    client_id = client['ID']
+                    if client_id not in client_cards:
+                        client_cards[client_id] = {
+                            'name': client['NAME'],
+                            'total_cards': 0
+                        }
+                    client_cards[client_id]['total_cards'] += client_info['cards']
+            
+            metrics.append({
+                'year': month_data['_id']['year'],
+                'month': month_data['_id']['month'],
+                'total_value': month_data['total_value'],
+                'total_releases': month_data['total_releases'],
+                'finished_releases': month_data['finished_releases'],
+                'generation_releases': month_data['generation_releases'],
+                'error_releases': month_data['error_releases'],
+                'clients': list(client_cards.values())
+            })
+        
+        return metrics

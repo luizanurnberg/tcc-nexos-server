@@ -74,7 +74,6 @@ def insert_next_release():
             500,
         )
 
-
 @release_route.route("/release/list", methods=["GET"])
 def list_releases():
     try:
@@ -106,3 +105,17 @@ def delete_release(release_id):
     except Exception as e:
         return jsonify({"message": "error", "error": str(e)}), 500
     
+@release_route.route("/release/metrics", methods=["GET"])
+def get_release_metrics():
+    try:
+        get_request_auth_token(request)
+        uid = request.args.get('uid')
+        if not uid:
+            return jsonify({"message": "UID não fornecido"}), 400
+        
+        release_service = ReleaseService()
+        metrics = release_service.get_release_metrics(uid)
+
+        return dumps({"message": "success", "data": metrics}), 200
+    except Exception as e:
+        return jsonify({"message": "error", "error": str(e)}), 500

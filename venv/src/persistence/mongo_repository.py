@@ -1,5 +1,6 @@
 from flask import current_app
 
+
 class MongoRepository:
     def __init__(self, collection_name):
         self.collection = current_app.db[collection_name]
@@ -72,4 +73,42 @@ class MongoRepository:
             return self.collection.delete_many(query).deleted_count
         except Exception as e:
             current_app.logger.error(f"Error in delete_many: {e}")
+            raise
+
+    def aggregate_release_metrics(self, user_id):
+        """Aggregate release metrics for a specific user"""
+        try:
+            pipeline = [
+                {"$match": {"CREATED_BY_ID": user_id}},
+                {
+                    "$group": {
+                        "_id": {
+                            "year": {"$year": "$CREATED_AT"},
+                            "month": {"$month": "$CREATED_AT"},
+                        },
+                        "total_value": {"$sum": "$TOTAL_BUDGET"},
+                        "total_releases": {"$sum": 1},
+                        "finished_releases": {
+                            "$sum": {"$cond": [{"$eq": ["$STATUS.ID", 2]}, 1, 0]}
+                        },
+                        "generation_releases": {
+                            "$sum": {"$cond": [{"$eq": ["$STATUS.ID", 1]}, 1, 0]}
+                        },
+                        "error_releases": {
+                            "$sum": {"$cond": [{"$eq": ["$STATUS.ID", 3]}, 1, 0]}
+                        },
+                        "clients": {
+                            "$push": {
+                                "client": "$CLIENT",
+                                "cards": {"$size": "$REQUIREMENT"},
+                            }
+                        },
+                    }
+                },
+                {"$sort": {"_id.year": 1, "_id.month": 1}},
+            ]
+
+            return list(self.collection.aggregate(pipeline))
+        except Exception as e:
+            current_app.logger.error(f"Error in aggregate_release_metrics: {e}")
             raise
