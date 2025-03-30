@@ -74,7 +74,7 @@ class ReleaseService:
             raise RuntimeError(f"Error deleting release: {e}")
 
     def get_release_metrics(self, user_id):
-        aggregated_data = self.repository.aggregate_release_metrics(user_id)
+        aggregated_data = self.release_repository.aggregate_release_metrics(user_id)
         
         metrics = []
         for month_data in aggregated_data:
